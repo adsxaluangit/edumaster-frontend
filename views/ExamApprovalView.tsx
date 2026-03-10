@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { fetchCategory, createCategory, updateCategory, fetchItem, COLLECTIONS } from '../services/api';
 
-const API_BASE_URL = 'http://localhost:1337'; // Add backend URL for images
+const API_BASE_URL = process.env.API_URL ? process.env.API_URL.replace(/\/api\/?$/, '') : ''; // Use relative base for images
 
 // Interface for Decision
 interface DecisionRecord {
