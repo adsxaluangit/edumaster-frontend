@@ -97,45 +97,67 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
   // --- Download Sample Excel ---
   const downloadSampleExcel = async () => {
     const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('Danh sách lớp tốt nghiệp');
+    const sheet = workbook.addWorksheet('Danh sách tốt nghiệp');
 
-    // Header row
+    // Header row - mỗi dòng = 1 học viên
     sheet.columns = [
-      { header: 'Số QĐ', key: 'so_qd', width: 18 },
-      { header: 'Tên lớp', key: 'ten_lop', width: 32 },
-      { header: 'Đợt/Khóa', key: 'dot_khoa', width: 20 },
-      { header: 'Ngày ký (YYYY-MM-DD)', key: 'ngay_ky', width: 24 },
-      { header: 'Người ký', key: 'nguoi_ky', width: 20 },
-      { header: 'Ghi chú', key: 'ghi_chu', width: 30 },
+      { header: 'Số QĐ', key: 'so_qd', width: 14 },
+      { header: 'Tên lớp', key: 'ten_lop', width: 30 },
+      { header: 'Đợt/Khóa', key: 'dot_khoa', width: 18 },
+      { header: 'Ngày ký (YYYY-MM-DD)', key: 'ngay_ky', width: 22 },
+      { header: 'Người ký', key: 'nguoi_ky', width: 18 },
+      { header: 'Họ và tên HV', key: 'ho_ten', width: 26 },
+      { header: 'Ngày sinh (YYYY-MM-DD)', key: 'ngay_sinh', width: 22 },
+      { header: 'Giới tính (Nam/Nữ)', key: 'gioi_tinh', width: 18 },
+      { header: 'Số CMND/CCCD', key: 'so_cmnd', width: 18 },
+      { header: 'Mã học viên', key: 'ma_hv', width: 16 },
+      { header: 'Quê quán', key: 'que_quan', width: 28 },
+      { header: 'Ghi chú', key: 'ghi_chu', width: 24 },
     ];
 
     // Style header row
     const headerRow = sheet.getRow(1);
     headerRow.eachCell(cell => {
-      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF10B981' } };
-      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF059669' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
       cell.border = {
         top: { style: 'thin' }, bottom: { style: 'thin' },
         left: { style: 'thin' }, right: { style: 'thin' }
       };
     });
-    headerRow.height = 22;
+    headerRow.height = 30;
 
-    // Sample data rows
+    // Sample data - cùng 1 Số QĐ = cùng 1 quyết định, nhiều dòng = nhiều học viên
     const sampleRows = [
-      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '2026-03-12', nguoi_ky: 'HIỆU TRƯỞNG', ghi_chu: '' },
-      { so_qd: '0203', ten_lop: 'HUẤN LUYỆN AN TOÀN CÁ NHÂN', dot_khoa: 'BTC-K2/2026', ngay_ky: '2026-03-15', nguoi_ky: 'HIỆU TRƯỞNG', ghi_chu: 'Ví dụ' },
+      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '2026-03-12', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'NGUYỄN VĂN AN', ngay_sinh: '1990-05-15', gioi_tinh: 'Nam', so_cmnd: '001234567890', ma_hv: 'HV001', que_quan: 'Hải Phòng', ghi_chu: '' },
+      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '2026-03-12', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'TRẦN THỊ BÌNH', ngay_sinh: '1992-08-20', gioi_tinh: 'Nữ', so_cmnd: '001234567891', ma_hv: 'HV002', que_quan: 'Hà Nội', ghi_chu: '' },
+      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '2026-03-12', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'LÊ VĂN CƯỜNG', ngay_sinh: '1988-12-01', gioi_tinh: 'Nam', so_cmnd: '001234567892', ma_hv: 'HV003', que_quan: 'Quảng Ninh', ghi_chu: '' },
+      { so_qd: '0203', ten_lop: 'HUẤN LUYỆN AN TOÀN CÁ NHÂN', dot_khoa: 'BTC-K2/2026', ngay_ky: '2026-03-15', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'PHẠM VĂN DŨNG', ngay_sinh: '1995-03-10', gioi_tinh: 'Nam', so_cmnd: '001234567893', ma_hv: 'HV004', que_quan: 'Nam Định', ghi_chu: 'Ví dụ lớp 2' },
     ];
-    sampleRows.forEach(row => {
+
+    sampleRows.forEach((row, idx) => {
       const r = sheet.addRow(row);
       r.eachCell(cell => {
+        cell.alignment = { vertical: 'middle' };
         cell.border = {
           top: { style: 'thin' }, bottom: { style: 'thin' },
           left: { style: 'thin' }, right: { style: 'thin' }
         };
       });
+      // Shade alternate decision groups
+      if (idx < 3) {
+        r.eachCell(cell => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0FDF4' } };
+        });
+      }
     });
+
+    // Add instruction note
+    const noteRow = sheet.addRow([]);
+    noteRow.getCell(1).value = '⚠️ Hướng dẫn: Cùng Số QĐ = Cùng 1 quyết định. Mỗi dòng là 1 học viên. Các lớp khác nhau thì dùng Số QĐ khác nhau.';
+    noteRow.getCell(1).font = { italic: true, color: { argb: 'FF6B7280' }, size: 9 };
+    sheet.mergeCells(`A${noteRow.number}:L${noteRow.number}`);
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -163,14 +185,23 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
       sheet.eachRow((row, rowNumber) => {
         if (rowNumber === 1) return; // Skip header
         const values = row.values as any[];
-        const soQd = String(values[1] || '').trim();
-        const tenLop = String(values[2] || '').trim();
-        const dotKhoa = String(values[3] || '').trim();
-        const ngayKy = String(values[4] || '').trim();
-        const nguoiKy = String(values[5] || '').trim();
-        const ghiChu = String(values[6] || '').trim();
+        const soQd = String(values[1] ?? '').trim();
+        const tenLop = String(values[2] ?? '').trim();
         if (!soQd && !tenLop) return; // skip empty rows
-        rows.push({ so_qd: soQd, ten_lop: tenLop, dot_khoa: dotKhoa, ngay_ky: ngayKy, nguoi_ky: nguoiKy, ghi_chu: ghiChu });
+        rows.push({
+          so_qd: soQd,
+          ten_lop: tenLop,
+          dot_khoa: String(values[3] ?? '').trim(),
+          ngay_ky: String(values[4] ?? '').trim(),
+          nguoi_ky: String(values[5] ?? '').trim(),
+          ho_ten: String(values[6] ?? '').trim(),
+          ngay_sinh: String(values[7] ?? '').trim(),
+          gioi_tinh: String(values[8] ?? '').trim(),
+          so_cmnd: String(values[9] ?? '').trim(),
+          ma_hv: String(values[10] ?? '').trim(),
+          que_quan: String(values[11] ?? '').trim(),
+          ghi_chu: String(values[12] ?? '').trim(),
+        });
       });
 
       setImportRows(rows);
@@ -180,22 +211,32 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
     }
   };
 
-  // --- Confirm Import: create decisions from parsed rows ---
+  // --- Confirm Import: group rows by Số QĐ, create decisions + link students ---
   const handleConfirmImport = async () => {
     if (importRows.length === 0) return;
     setImportLoading(true);
     let successCount = 0;
     let errorCount = 0;
 
-    for (const row of importRows) {
+    // Group rows by so_qd
+    const grouped = new Map<string, any[]>();
+    importRows.forEach(row => {
+      const key = row.so_qd;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key)!.push(row);
+    });
+
+    for (const [soQd, rowGroup] of Array.from(grouped.entries())) {
       try {
-        // Check duplicate decision number in same year
-        const signedDate = row.ngay_ky || new Date().toISOString().split('T')[0];
+        const firstRow = rowGroup[0];
+        const signedDate = firstRow.ngay_ky || new Date().toISOString().split('T')[0];
         const currentYear = new Date(signedDate).getFullYear();
+
+        // Check duplicate decision number in same year
         const isDuplicate = decisions.some(d => {
           if (!d.number || !d.signedDate) return false;
           const decYear = new Date(d.signedDate).getFullYear();
-          return d.number.trim() === row.so_qd.trim() && decYear === currentYear;
+          return d.number.trim() === soQd.trim() && decYear === currentYear;
         });
 
         if (isDuplicate) {
@@ -203,19 +244,34 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
           continue;
         }
 
+        // Match students by ma_hv (mã học viên) or ho_ten
+        const studentNumericIds: number[] = [];
+        rowGroup.forEach(row => {
+          if (!row.ho_ten) return;
+          const matched = allStudents.find(s => {
+            const codeMatch = row.ma_hv && (s.studentCode || '').toLowerCase().trim() === row.ma_hv.toLowerCase().trim();
+            const nameMatch = (s.fullName || '').toLowerCase().trim() === row.ho_ten.toLowerCase().trim();
+            return codeMatch || nameMatch;
+          });
+          if (matched) {
+            const numId = Number((matched as any).strapiId || matched.id);
+            if (numId && !studentNumericIds.includes(numId)) studentNumericIds.push(numId);
+          }
+        });
+
         const payload: any = {
-          decision_number: row.so_qd,
+          decision_number: soQd,
           type: 'RECOGNITION',
-          training_course: row.dot_khoa,
+          training_course: firstRow.dot_khoa,
           signed_date: signedDate,
-          signer_name: row.nguoi_ky || 'HIỆU TRƯỞNG',
-          notes: row.ghi_chu,
-          students: [],
+          signer_name: firstRow.nguoi_ky || 'HIỆU TRƯỞNG',
+          notes: firstRow.ghi_chu,
+          students: studentNumericIds,
         };
 
         // Try to match class by ten_lop name
         const matchedClass = availableClasses.find(
-          c => (c.name || c.attributes?.name || '').toLowerCase().trim() === row.ten_lop.toLowerCase().trim()
+          c => (c.name || c.attributes?.name || '').toLowerCase().trim() === firstRow.ten_lop.toLowerCase().trim()
         );
         if (matchedClass) {
           payload.school_class = Number(matchedClass.strapiId || matchedClass.id);
@@ -232,7 +288,7 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
     setIsImportModalOpen(false);
     setImportRows([]);
     await loadDecisions();
-    alert(`Import hoàn tất! Thành công: ${successCount}, Thất bại/Trùng: ${errorCount}`);
+    alert(`Import hoàn tất!\n✅ Thành công: ${successCount} quyết định\n❌ Thất bại/Trùng: ${errorCount} quyết định`);
   };
 
 
@@ -1963,37 +2019,56 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
               <table className="w-full text-sm text-left">
                 <thead className="bg-slate-50 border-b text-slate-500 uppercase text-[11px] font-bold sticky top-0">
                   <tr>
-                    <th className="px-4 py-3 w-10">#</th>
-                    <th className="px-4 py-3">Số QĐ</th>
-                    <th className="px-4 py-3">Tên lớp</th>
-                    <th className="px-4 py-3">Đợt/Khóa</th>
-                    <th className="px-4 py-3">Ngày ký</th>
-                    <th className="px-4 py-3">Người ký</th>
-                    <th className="px-4 py-3">Ghi chú</th>
+                    <th className="px-3 py-3 w-8">#</th>
+                    <th className="px-3 py-3">Số QĐ</th>
+                    <th className="px-3 py-3">Tên lớp</th>
+                    <th className="px-3 py-3">Đợt/Khóa</th>
+                    <th className="px-3 py-3">Ngày ký</th>
+                    <th className="px-3 py-3">Họ và tên HV</th>
+                    <th className="px-3 py-3">Ngày sinh</th>
+                    <th className="px-3 py-3">Giới tính</th>
+                    <th className="px-3 py-3">Số CMND</th>
+                    <th className="px-3 py-3">Mã HV</th>
+                    <th className="px-3 py-3">Quê quán</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {importRows.map((row, i) => (
-                    <tr key={i} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 text-slate-400 font-medium">{i + 1}</td>
-                      <td className="px-4 py-3 font-bold text-blue-700">{row.so_qd}</td>
-                      <td className="px-4 py-3 font-semibold text-slate-700 uppercase">{row.ten_lop}</td>
-                      <td className="px-4 py-3 text-slate-500">{row.dot_khoa}</td>
-                      <td className="px-4 py-3 text-slate-500">{row.ngay_ky}</td>
-                      <td className="px-4 py-3 text-slate-500">{row.nguoi_ky}</td>
-                      <td className="px-4 py-3 text-slate-400 italic">{row.ghi_chu}</td>
-                    </tr>
-                  ))}
+                  {importRows.map((row, i) => {
+                    // Check if same so_qd as previous row (visually group)
+                    const isSameQD = i > 0 && importRows[i - 1].so_qd === row.so_qd;
+                    return (
+                      <tr key={i} className={`hover:bg-blue-50 ${isSameQD ? 'bg-slate-50/50' : 'bg-white'}`}>
+                        <td className="px-3 py-2 text-slate-400 text-xs">{i + 1}</td>
+                        <td className="px-3 py-2">
+                          {!isSameQD && <span className="inline-flex px-2 py-0.5 bg-blue-50 text-blue-700 rounded font-black text-xs border border-blue-100">{row.so_qd}</span>}
+                        </td>
+                        <td className="px-3 py-2 font-semibold text-slate-700 text-xs uppercase">{!isSameQD && row.ten_lop}</td>
+                        <td className="px-3 py-2 text-slate-500 text-xs">{!isSameQD && row.dot_khoa}</td>
+                        <td className="px-3 py-2 text-slate-500 text-xs">{!isSameQD && row.ngay_ky}</td>
+                        <td className="px-3 py-2 font-semibold text-slate-800 text-xs">{row.ho_ten}</td>
+                        <td className="px-3 py-2 text-slate-500 text-xs">{row.ngay_sinh}</td>
+                        <td className="px-3 py-2 text-slate-500 text-xs">{row.gioi_tinh}</td>
+                        <td className="px-3 py-2 text-slate-500 text-xs">{row.so_cmnd}</td>
+                        <td className="px-3 py-2 text-emerald-600 font-mono text-xs">{row.ma_hv}</td>
+                        <td className="px-3 py-2 text-slate-400 text-xs">{row.que_quan}</td>
+                      </tr>
+                    );
+                  })}
                   {importRows.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="py-10 text-center text-slate-400">Không có dữ liệu để import.</td>
+                      <td colSpan={11} className="py-10 text-center text-slate-400">Không có dữ liệu để import.</td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
 
-            <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-end gap-3 shrink-0">
+            <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-between items-center shrink-0">
+              <div className="text-sm text-slate-500">
+                <span className="font-bold text-slate-700">{new Set(importRows.map(r => r.so_qd)).size}</span> quyết định •{' '}
+                <span className="font-bold text-slate-700">{importRows.filter(r => r.ho_ten).length}</span> học viên
+              </div>
+              <div className="flex gap-3">
               <button
                 onClick={() => { setIsImportModalOpen(false); setImportRows([]); }}
                 className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold transition-all"
@@ -2008,9 +2083,10 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
                 {importLoading ? (
                   <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Đang import...</>
                 ) : (
-                  <><Upload size={18} /> Xác nhận Import ({importRows.length} QĐ)</>
+                  <><Upload size={18} /> Xác nhận Import ({new Set(importRows.map(r => r.so_qd)).size} QĐ)</>
                 )}
               </button>
+              </div>
             </div>
           </div>
         </div>
