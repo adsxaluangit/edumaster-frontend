@@ -2085,23 +2085,23 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
                 <span className="font-bold text-slate-700">{importRows.filter(r => r.ho_ten).length}</span> học viên
               </div>
               <div className="flex gap-3">
-              <button
-                onClick={() => { setIsImportModalOpen(false); setImportRows([]); }}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold transition-all"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleConfirmImport}
-                disabled={importLoading || importRows.length === 0}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-emerald-200"
-              >
-                {importLoading ? (
-                  <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Đang import...</>
-                ) : (
-                  <><Upload size={18} /> Xác nhận Import ({new Set(importRows.map(r => r.so_qd)).size} QĐ)</>
-                )}
-              </button>
+                <button
+                  onClick={() => { setIsImportModalOpen(false); setImportRows([]); }}
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold transition-all"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleConfirmImport}
+                  disabled={importLoading || importRows.length === 0}
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-emerald-200"
+                >
+                  {importLoading ? (
+                    <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Đang import...</>
+                  ) : (
+                    <><Upload size={18} /> Xác nhận Import ({new Set(importRows.map(r => r.so_qd)).size} QĐ)</>
+                  )}
+                </button>
               </div>
             </div>
           </div>
