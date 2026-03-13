@@ -104,10 +104,10 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
       { header: 'Số QĐ', key: 'so_qd', width: 14 },
       { header: 'Tên lớp', key: 'ten_lop', width: 30 },
       { header: 'Đợt/Khóa', key: 'dot_khoa', width: 18 },
-      { header: 'Ngày ký (YYYY-MM-DD)', key: 'ngay_ky', width: 22 },
+      { header: 'Ngày ký (dd/mm/yyyy)', key: 'ngay_ky', width: 22 },
       { header: 'Người ký', key: 'nguoi_ky', width: 18 },
       { header: 'Họ và tên HV', key: 'ho_ten', width: 26 },
-      { header: 'Ngày sinh (YYYY-MM-DD)', key: 'ngay_sinh', width: 22 },
+      { header: 'Ngày sinh (dd/mm/yyyy)', key: 'ngay_sinh', width: 22 },
       { header: 'Giới tính (Nam/Nữ)', key: 'gioi_tinh', width: 18 },
       { header: 'Số CMND/CCCD', key: 'so_cmnd', width: 18 },
       { header: 'Mã học viên', key: 'ma_hv', width: 16 },
@@ -130,10 +130,10 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
 
     // Sample data - cùng 1 Số QĐ = cùng 1 quyết định, nhiều dòng = nhiều học viên
     const sampleRows = [
-      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '2026-03-12', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'NGUYỄN VĂN AN', ngay_sinh: '1990-05-15', gioi_tinh: 'Nam', so_cmnd: '001234567890', ma_hv: 'HV001', que_quan: 'Hải Phòng', ghi_chu: '' },
-      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '2026-03-12', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'TRẦN THỊ BÌNH', ngay_sinh: '1992-08-20', gioi_tinh: 'Nữ', so_cmnd: '001234567891', ma_hv: 'HV002', que_quan: 'Hà Nội', ghi_chu: '' },
-      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '2026-03-12', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'LÊ VĂN CƯỜNG', ngay_sinh: '1988-12-01', gioi_tinh: 'Nam', so_cmnd: '001234567892', ma_hv: 'HV003', que_quan: 'Quảng Ninh', ghi_chu: '' },
-      { so_qd: '0203', ten_lop: 'HUẤN LUYỆN AN TOÀN CÁ NHÂN', dot_khoa: 'BTC-K2/2026', ngay_ky: '2026-03-15', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'PHẠM VĂN DŨNG', ngay_sinh: '1995-03-10', gioi_tinh: 'Nam', so_cmnd: '001234567893', ma_hv: 'HV004', que_quan: 'Nam Định', ghi_chu: 'Ví dụ lớp 2' },
+      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '12/03/2026', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'NGUYỄN VĂN AN', ngay_sinh: '15/05/1990', gioi_tinh: 'Nam', so_cmnd: '001234567890', ma_hv: 'HV001', que_quan: 'Hải Phòng', ghi_chu: '' },
+      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '12/03/2026', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'TRẦN THỊ BÌNH', ngay_sinh: '20/08/1992', gioi_tinh: 'Nữ', so_cmnd: '001234567891', ma_hv: 'HV002', que_quan: 'Hà Nội', ghi_chu: '' },
+      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '12/03/2026', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'LÊ VĂN CƯỜNG', ngay_sinh: '01/12/1988', gioi_tinh: 'Nam', so_cmnd: '001234567892', ma_hv: 'HV003', que_quan: 'Quảng Ninh', ghi_chu: '' },
+      { so_qd: '0203', ten_lop: 'HUẤN LUYỆN AN TOÀN CÁ NHÂN', dot_khoa: 'BTC-K2/2026', ngay_ky: '15/03/2026', nguoi_ky: 'HIỆU TRƯỞNG', ho_ten: 'PHẠM VĂN DŨNG', ngay_sinh: '10/03/1995', gioi_tinh: 'Nam', so_cmnd: '001234567893', ma_hv: 'HV004', que_quan: 'Nam Định', ghi_chu: 'Ví dụ lớp 2' },
     ];
 
     sampleRows.forEach((row, idx) => {
@@ -169,6 +169,22 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
     URL.revokeObjectURL(url);
   };
 
+  // Helper: convert dd/mm/yyyy -> yyyy-mm-dd (for backend), fallback nếu đã là yyyy-mm-dd
+  const parseDateToISO = (raw: any): string => {
+    if (!raw) return '';
+    // ExcelJS có thể trả về Date object
+    if (raw instanceof Date) {
+      return raw.toISOString().split('T')[0];
+    }
+    const s = String(raw).trim();
+    // dd/mm/yyyy
+    const dmyMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (dmyMatch) return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}`;
+    // yyyy-mm-dd (already ISO)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    return s;
+  };
+
   // --- Handle Import Excel File ---
   const handleImportExcelFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -192,10 +208,10 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
           so_qd: soQd,
           ten_lop: tenLop,
           dot_khoa: String(values[3] ?? '').trim(),
-          ngay_ky: String(values[4] ?? '').trim(),
+          ngay_ky: parseDateToISO(values[4] ?? ''),
           nguoi_ky: String(values[5] ?? '').trim(),
           ho_ten: String(values[6] ?? '').trim(),
-          ngay_sinh: String(values[7] ?? '').trim(),
+          ngay_sinh: parseDateToISO(values[7] ?? ''),
           gioi_tinh: String(values[8] ?? '').trim(),
           so_cmnd: String(values[9] ?? '').trim(),
           ma_hv: String(values[10] ?? '').trim(),
@@ -2069,23 +2085,23 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
                 <span className="font-bold text-slate-700">{importRows.filter(r => r.ho_ten).length}</span> học viên
               </div>
               <div className="flex gap-3">
-              <button
-                onClick={() => { setIsImportModalOpen(false); setImportRows([]); }}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold transition-all"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleConfirmImport}
-                disabled={importLoading || importRows.length === 0}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-emerald-200"
-              >
-                {importLoading ? (
-                  <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Đang import...</>
-                ) : (
-                  <><Upload size={18} /> Xác nhận Import ({new Set(importRows.map(r => r.so_qd)).size} QĐ)</>
-                )}
-              </button>
+                <button
+                  onClick={() => { setIsImportModalOpen(false); setImportRows([]); }}
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold transition-all"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleConfirmImport}
+                  disabled={importLoading || importRows.length === 0}
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-emerald-200"
+                >
+                  {importLoading ? (
+                    <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Đang import...</>
+                  ) : (
+                    <><Upload size={18} /> Xác nhận Import ({new Set(importRows.map(r => r.so_qd)).size} QĐ)</>
+                  )}
+                </button>
               </div>
             </div>
           </div>
