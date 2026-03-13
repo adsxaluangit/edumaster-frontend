@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, X, List, Search, Trash2, Edit, UserPlus, Save, FileText, Calendar, Users, FileDown, GraduationCap, School, Paperclip, Upload, Printer, IdCard, FileSpreadsheet, History, Clock, ShieldCheck, ScrollText } from 'lucide-react';
 import { Student } from '../types';
 import { fetchCategory, createCategory, updateCategory, deleteCategory, COLLECTIONS, createLog } from '../services/api';
@@ -82,11 +82,157 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
 
+  // Import State
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [importRows, setImportRows] = useState<any[]>([]);
+  const [importLoading, setImportLoading] = useState(false);
+
   const loadAuditLogs = async () => {
     // Fetch logs related to decisions if possible, or all logs
     // Currently, we'll fetch all and filter or just show top 50 recent
     const logs = await fetchCategory(`${COLLECTIONS.AUDIT_LOGS}?sort[0]=createdAt:desc&pagination[limit]=50`);
     if (logs) setAuditLogs(logs);
+  };
+
+  // --- Download Sample Excel ---
+  const downloadSampleExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Danh sách lớp tốt nghiệp');
+
+    // Header row
+    sheet.columns = [
+      { header: 'Số QĐ', key: 'so_qd', width: 18 },
+      { header: 'Tên lớp', key: 'ten_lop', width: 32 },
+      { header: 'Đợt/Khóa', key: 'dot_khoa', width: 20 },
+      { header: 'Ngày ký (YYYY-MM-DD)', key: 'ngay_ky', width: 24 },
+      { header: 'Người ký', key: 'nguoi_ky', width: 20 },
+      { header: 'Ghi chú', key: 'ghi_chu', width: 30 },
+    ];
+
+    // Style header row
+    const headerRow = sheet.getRow(1);
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF10B981' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = {
+        top: { style: 'thin' }, bottom: { style: 'thin' },
+        left: { style: 'thin' }, right: { style: 'thin' }
+      };
+    });
+    headerRow.height = 22;
+
+    // Sample data rows
+    const sampleRows = [
+      { so_qd: '0202', ten_lop: 'HUẤN LUYỆN NGHIỆP VỤ CƠ BẢN', dot_khoa: 'BTC-K1/2026', ngay_ky: '2026-03-12', nguoi_ky: 'HIỆU TRƯỞNG', ghi_chu: '' },
+      { so_qd: '0203', ten_lop: 'HUẤN LUYỆN AN TOÀN CÁ NHÂN', dot_khoa: 'BTC-K2/2026', ngay_ky: '2026-03-15', nguoi_ky: 'HIỆU TRƯỞNG', ghi_chu: 'Ví dụ' },
+    ];
+    sampleRows.forEach(row => {
+      const r = sheet.addRow(row);
+      r.eachCell(cell => {
+        cell.border = {
+          top: { style: 'thin' }, bottom: { style: 'thin' },
+          left: { style: 'thin' }, right: { style: 'thin' }
+        };
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mau_import_quyet_dinh_cong_nhan.xlsx';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // --- Handle Import Excel File ---
+  const handleImportExcelFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buffer);
+      const sheet = workbook.worksheets[0];
+      const rows: any[] = [];
+
+      sheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return; // Skip header
+        const values = row.values as any[];
+        const soQd = String(values[1] || '').trim();
+        const tenLop = String(values[2] || '').trim();
+        const dotKhoa = String(values[3] || '').trim();
+        const ngayKy = String(values[4] || '').trim();
+        const nguoiKy = String(values[5] || '').trim();
+        const ghiChu = String(values[6] || '').trim();
+        if (!soQd && !tenLop) return; // skip empty rows
+        rows.push({ so_qd: soQd, ten_lop: tenLop, dot_khoa: dotKhoa, ngay_ky: ngayKy, nguoi_ky: nguoiKy, ghi_chu: ghiChu });
+      });
+
+      setImportRows(rows);
+      setIsImportModalOpen(true);
+    } catch (err) {
+      alert('Lỗi đọc file Excel. Vui lòng kiểm tra định dạng file.');
+    }
+  };
+
+  // --- Confirm Import: create decisions from parsed rows ---
+  const handleConfirmImport = async () => {
+    if (importRows.length === 0) return;
+    setImportLoading(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const row of importRows) {
+      try {
+        // Check duplicate decision number in same year
+        const signedDate = row.ngay_ky || new Date().toISOString().split('T')[0];
+        const currentYear = new Date(signedDate).getFullYear();
+        const isDuplicate = decisions.some(d => {
+          if (!d.number || !d.signedDate) return false;
+          const decYear = new Date(d.signedDate).getFullYear();
+          return d.number.trim() === row.so_qd.trim() && decYear === currentYear;
+        });
+
+        if (isDuplicate) {
+          errorCount++;
+          continue;
+        }
+
+        const payload: any = {
+          decision_number: row.so_qd,
+          type: 'RECOGNITION',
+          training_course: row.dot_khoa,
+          signed_date: signedDate,
+          signer_name: row.nguoi_ky || 'HIỆU TRƯỞNG',
+          notes: row.ghi_chu,
+          students: [],
+        };
+
+        // Try to match class by ten_lop name
+        const matchedClass = availableClasses.find(
+          c => (c.name || c.attributes?.name || '').toLowerCase().trim() === row.ten_lop.toLowerCase().trim()
+        );
+        if (matchedClass) {
+          payload.school_class = Number(matchedClass.strapiId || matchedClass.id);
+        }
+
+        await createCategory(COLLECTIONS.CLASS_DECISIONS, payload);
+        successCount++;
+      } catch (err) {
+        errorCount++;
+      }
+    }
+
+    setImportLoading(false);
+    setIsImportModalOpen(false);
+    setImportRows([]);
+    await loadDecisions();
+    alert(`Import hoàn tất! Thành công: ${successCount}, Thất bại/Trùng: ${errorCount}`);
   };
 
 
@@ -1537,10 +1683,31 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
             </div>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button onClick={() => { setIsAuditModalOpen(true); loadAuditLogs(); }} className="bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 px-4 py-2.5 rounded-xl font-bold flex gap-2 shadow-sm transition-all">
             <History size={20} /> Lịch sử
           </button>
+          {/* Download Sample Excel Button */}
+          <button
+            onClick={downloadSampleExcel}
+            className="bg-white text-emerald-600 border border-emerald-200 hover:bg-emerald-50 px-4 py-2.5 rounded-xl font-bold flex gap-2 shadow-sm transition-all"
+            title="Tải file Excel mẫu"
+          >
+            <FileSpreadsheet size={20} /> File mẫu
+          </button>
+          {/* Import Excel Button */}
+          <label
+            className="bg-white text-blue-600 border border-blue-200 hover:bg-blue-50 px-4 py-2.5 rounded-xl font-bold flex gap-2 shadow-sm transition-all cursor-pointer"
+            title="Import từ file Excel"
+          >
+            <Upload size={20} /> Import Excel
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              className="hidden"
+              onChange={handleImportExcelFile}
+            />
+          </label>
           <button onClick={() => {
             setEditingId(null);
             setFormData({
@@ -1776,6 +1943,78 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
           </div>
         )
       }
+
+      {/* Import Preview Modal */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-5xl rounded-xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
+            <div className="bg-emerald-700 text-white px-6 py-4 flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-3">
+                <FileSpreadsheet className="text-emerald-300" />
+                <div>
+                  <h2 className="text-lg font-bold">Xem trước dữ liệu Import</h2>
+                  <p className="text-emerald-200 text-xs">{importRows.length} quyết định sẽ được tạo mới (loại: Công nhận)</p>
+                </div>
+              </div>
+              <button onClick={() => { setIsImportModalOpen(false); setImportRows([]); }} className="hover:bg-emerald-600 p-1 rounded-full"><X /></button>
+            </div>
+
+            <div className="flex-1 overflow-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-slate-50 border-b text-slate-500 uppercase text-[11px] font-bold sticky top-0">
+                  <tr>
+                    <th className="px-4 py-3 w-10">#</th>
+                    <th className="px-4 py-3">Số QĐ</th>
+                    <th className="px-4 py-3">Tên lớp</th>
+                    <th className="px-4 py-3">Đợt/Khóa</th>
+                    <th className="px-4 py-3">Ngày ký</th>
+                    <th className="px-4 py-3">Người ký</th>
+                    <th className="px-4 py-3">Ghi chú</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {importRows.map((row, i) => (
+                    <tr key={i} className="hover:bg-slate-50">
+                      <td className="px-4 py-3 text-slate-400 font-medium">{i + 1}</td>
+                      <td className="px-4 py-3 font-bold text-blue-700">{row.so_qd}</td>
+                      <td className="px-4 py-3 font-semibold text-slate-700 uppercase">{row.ten_lop}</td>
+                      <td className="px-4 py-3 text-slate-500">{row.dot_khoa}</td>
+                      <td className="px-4 py-3 text-slate-500">{row.ngay_ky}</td>
+                      <td className="px-4 py-3 text-slate-500">{row.nguoi_ky}</td>
+                      <td className="px-4 py-3 text-slate-400 italic">{row.ghi_chu}</td>
+                    </tr>
+                  ))}
+                  {importRows.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="py-10 text-center text-slate-400">Không có dữ liệu để import.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-end gap-3 shrink-0">
+              <button
+                onClick={() => { setIsImportModalOpen(false); setImportRows([]); }}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold transition-all"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleConfirmImport}
+                disabled={importLoading || importRows.length === 0}
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-emerald-200"
+              >
+                {importLoading ? (
+                  <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Đang import...</>
+                ) : (
+                  <><Upload size={18} /> Xác nhận Import ({importRows.length} QĐ)</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
