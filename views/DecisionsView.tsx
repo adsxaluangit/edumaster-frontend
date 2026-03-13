@@ -77,6 +77,7 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
   const [selectedStudentsToAdd, setSelectedStudentsToAdd] = useState<Set<string>>(new Set());
   const [tempStudents, setTempStudents] = useState<DecisionDetail[]>([]);
   const [viewingDocsStudentId, setViewingDocsStudentId] = useState<string | null>(null);
+  const [viewingGradeStudentId, setViewingGradeStudentId] = useState<string | null>(null);
 
   // Audit Log State
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
@@ -1583,20 +1584,33 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
                     <th className="px-4 py-1.5 text-center">Số CCCD</th>
                     <th className="px-4 py-1.5 text-center">Ngày sinh</th>
                     <th className="px-4 py-1.5">Quê quán</th>
+                    <th className="px-4 py-1.5 text-center">Bảng điểm</th>
                     <th className="px-4 py-1.5 text-center">Hồ sơ</th>
                     <th className="px-4 py-1.5 w-16 text-center">Xóa</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {tempStudents.map((s, idx) => (
-                    <tr key={s.id || `temp-${idx}`} className="hover:bg-slate-50 group">
+                    <tr key={s.id || `temp-${idx}`} className="hover:bg-blue-50/30 group cursor-pointer">
                       <td className="px-4 py-2 text-center text-slate-400">{idx + 1}</td>
-                      <td className="px-4 py-2 font-bold text-slate-700 uppercase leading-none">
+                      <td className="px-4 py-2 font-bold text-blue-700 uppercase leading-none hover:underline cursor-pointer"
+                        onClick={() => setViewingGradeStudentId(s.id)}
+                        title="Xem bảng điểm"
+                      >
                         {s.fullName}
                       </td>
                       <td className="px-4 py-2 text-center text-slate-500 font-medium">{s.cardNumber || '--'}</td>
                       <td className="px-4 py-2 text-center text-slate-500 font-medium">{s.dob ? new Date(s.dob).toLocaleDateString('vi-VN') : '--'}</td>
                       <td className="px-4 py-2 text-slate-600 text-[11px] font-medium">{s.hometown}</td>
+                      <td className="px-4 py-2 text-center">
+                        <button
+                          onClick={() => setViewingGradeStudentId(s.id)}
+                          className="inline-flex items-center gap-1 bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-black border border-blue-100 hover:bg-blue-100 transition-colors shadow-sm"
+                          title="Xem bảng điểm"
+                        >
+                          <FileText size={10} /> Điểm
+                        </button>
+                      </td>
                       <td className="px-4 py-2 text-center">
                         <div className="flex justify-center gap-1">
                           {s.documents && s.documents.length > 0 ? (
@@ -1729,6 +1743,93 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderGradeModal = () => {
+    if (!viewingGradeStudentId) return null;
+    const student = tempStudents.find(s => s.id === viewingGradeStudentId);
+    if (!student) return null;
+    const openingId = formData.relatedOpeningId;
+    const gradeRecord = examGrades.find(eg => {
+      const did = eg.decision?.documentId || eg.decision?.id;
+      return String(did) === String(openingId);
+    });
+    const classObj = availableClasses.find(c =>
+      String(c.id) === String(formData.classId) || String(c.documentId) === String(formData.classId)
+    );
+    const subjects = classObj?.subjects || [];
+    const subjectGrades = gradeRecord?.grades || {};
+    const gradeRows = subjects.map((subj: any) => {
+      const subId = String(subj.strapiId || subj.id);
+      const gradeVal = subjectGrades[subId]?.[student.studentCode];
+      let theory = '--', practice = '--', overall = '--';
+      if (gradeVal !== undefined && gradeVal !== null && gradeVal !== '') {
+        if (typeof gradeVal === 'object') {
+          theory   = (gradeVal.theory   !== undefined && gradeVal.theory   !== '') ? String(gradeVal.theory)   : '--';
+          practice = (gradeVal.practice !== undefined && gradeVal.practice !== '') ? String(gradeVal.practice) : '--';
+          overall  = (gradeVal.overall  !== undefined && gradeVal.overall  !== '') ? String(gradeVal.overall)  : '--';
+        } else { overall = String(gradeVal); }
+      }
+      return { name: subj.name || subj.attributes?.name || 'Môn học', theory, practice, overall };
+    });
+    const hasGrades = gradeRecord && subjects.length > 0;
+    return (
+      <div className="fixed inset-0 bg-black/60 z-[160] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
+          <div className="bg-gradient-to-r from-blue-700 to-blue-500 text-white px-6 py-4 flex justify-between items-center shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-black text-lg">{student.fullName?.charAt(0)}</div>
+              <div>
+                <div className="font-black text-lg uppercase tracking-wide">{student.fullName}</div>
+                <div className="text-blue-200 text-xs">Mã HV: {student.studentCode || '--'}  •  CCCD: {student.cardNumber || '--'}</div>
+              </div>
+            </div>
+            <button onClick={() => setViewingGradeStudentId(null)} className="hover:bg-blue-600 p-1.5 rounded-full transition-colors"><X size={20} /></button>
+          </div>
+          <div className="bg-blue-50 px-6 py-2 flex flex-wrap gap-4 text-xs text-blue-700 font-medium border-b border-blue-100 shrink-0">
+            <span>📅 Ngày sinh: <strong>{student.dob ? new Date(student.dob).toLocaleDateString('vi-VN') : '--'}</strong></span>
+            <span>🏨 Quê quán: <strong>{student.hometown || '--'}</strong></span>
+            <span>👤 Giới tính: <strong>{student.gender || '--'}</strong></span>
+          </div>
+          <div className="flex-1 overflow-auto p-6">
+            {!hasGrades ? (
+              <div className="py-16 text-center">
+                <div className="text-6xl mb-4">📋</div>
+                <p className="text-slate-500 font-semibold">{openingId ? 'Chưa có dữ liệu điểm cho học viên này.' : 'Quyết định chưa liên kết QD mở lớp.'}</p>
+                <p className="text-slate-400 text-xs mt-1">Dữ liệu điểm được nhập ở mục Nhập điểm thi.</p>
+              </div>
+            ) : (
+              <div>
+                <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Kết quả học tập — {formData.className || formData.trainingCourse}</div>
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-slate-800 text-white">
+                      <th className="px-4 py-3 text-left font-bold text-xs uppercase tracking-wide">Môn học</th>
+                      <th className="px-4 py-3 text-center font-bold text-xs uppercase tracking-wide w-28">Lý thuyết</th>
+                      <th className="px-4 py-3 text-center font-bold text-xs uppercase tracking-wide w-28">Thực hành</th>
+                      <th className="px-4 py-3 text-center font-bold text-xs uppercase tracking-wide w-28">Tổng/ĐG</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {gradeRows.map((row, i) => (
+                      <tr key={i} className={`${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'} hover:bg-blue-50/40 transition-colors`}>
+                        <td className="px-4 py-3 font-semibold text-slate-700">{row.name}</td>
+                        <td className="px-4 py-3 text-center"><span className={`inline-block px-3 py-1 rounded-full text-sm font-black ${row.theory !== '--' ? 'bg-blue-100 text-blue-700' : 'text-slate-300'}`}>{row.theory}</span></td>
+                        <td className="px-4 py-3 text-center"><span className={`inline-block px-3 py-1 rounded-full text-sm font-black ${row.practice !== '--' ? 'bg-purple-100 text-purple-700' : 'text-slate-300'}`}>{row.practice}</span></td>
+                        <td className="px-4 py-3 text-center"><span className={`inline-block px-3 py-1 rounded-full text-sm font-black ${row.overall !== '--' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-300'}`}>{row.overall}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+          <div className="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-end shrink-0">
+            <button onClick={() => setViewingGradeStudentId(null)} className="px-5 py-2 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-colors">Dóng</button>
           </div>
         </div>
       </div>
@@ -1958,6 +2059,7 @@ const DecisionsView: React.FC<DecisionsViewProps> = ({ mode, currentUser }) => {
 
       {isAddStudentModalOpen && renderAddStudentModal()}
       {renderDocsModal()}
+      {renderGradeModal()}
 
       {/* Audit Log Modal */}
       {
