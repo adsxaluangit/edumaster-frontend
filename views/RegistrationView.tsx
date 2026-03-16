@@ -364,14 +364,48 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onLoginSuccess, ini
 
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Nơi sinh (Tỉnh/TP) <span className="text-red-500">*</span></label>
-                                    <input
-                                        type="text"
+                                    <select
                                         required
                                         value={formData.pob}
                                         onChange={e => setFormData({ ...formData, pob: e.target.value })}
                                         className="w-full px-4 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-                                        placeholder="Ví dụ: Hải Phòng"
-                                    />
+                                    >
+                                        <option value="">-- Chọn tỉnh/thành phố --</option>
+                                        <option value="Hà Nội">Hà Nội</option>
+                                        <option value="Thành phố Huế">Thành phố Huế</option>
+                                        <option value="Lai Châu">Lai Châu</option>
+                                        <option value="Điện Biên">Điện Biên</option>
+                                        <option value="Sơn La">Sơn La</option>
+                                        <option value="Lạng Sơn">Lạng Sơn</option>
+                                        <option value="Quảng Ninh">Quảng Ninh</option>
+                                        <option value="Thanh Hoá">Thanh Hoá</option>
+                                        <option value="Nghệ An">Nghệ An</option>
+                                        <option value="Hà Tĩnh">Hà Tĩnh</option>
+                                        <option value="Cao Bằng">Cao Bằng</option>
+                                        <option value="Tuyên Quang">Tuyên Quang</option>
+                                        <option value="Lào Cai">Lào Cai</option>
+                                        <option value="Thái Nguyên">Thái Nguyên</option>
+                                        <option value="Phú Thọ">Phú Thọ</option>
+                                        <option value="Bắc Ninh">Bắc Ninh</option>
+                                        <option value="Hưng Yên">Hưng Yên</option>
+                                        <option value="Thành phố Hải Phòng">Thành phố Hải Phòng</option>
+                                        <option value="Ninh Bình">Ninh Bình</option>
+                                        <option value="Quảng Trị">Quảng Trị</option>
+                                        <option value="Thành phố Đà Nẵng">Thành phố Đà Nẵng</option>
+                                        <option value="Quảng Ngãi">Quảng Ngãi</option>
+                                        <option value="Gia Lai">Gia Lai</option>
+                                        <option value="Khánh Hòa">Khánh Hòa</option>
+                                        <option value="Lâm Đồng">Lâm Đồng</option>
+                                        <option value="Đắk Lắk">Đắk Lắk</option>
+                                        <option value="Thành phố Hồ Chí Minh">Thành phố Hồ Chí Minh</option>
+                                        <option value="Đồng Nai">Đồng Nai</option>
+                                        <option value="Tây Ninh">Tây Ninh</option>
+                                        <option value="Thành phố Cần Thơ">Thành phố Cần Thơ</option>
+                                        <option value="Vĩnh Long">Vĩnh Long</option>
+                                        <option value="Đồng Tháp">Đồng Tháp</option>
+                                        <option value="Cà Mau">Cà Mau</option>
+                                        <option value="An Giang">An Giang</option>
+                                    </select>
                                 </div>
 
                                 <div>

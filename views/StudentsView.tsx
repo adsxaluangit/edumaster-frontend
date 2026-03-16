@@ -596,12 +596,47 @@ const StudentsView: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2 col-span-2">
                     <label className="w-20 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Nơi sinh:</label>
-                    <input
-                      type="text"
+                    <select
                       value={formData.pob}
                       onChange={e => setFormData({ ...formData, pob: e.target.value })}
-                      className="flex-1 border border-slate-300 rounded-sm px-2 py-1.5 text-[12px] focus:border-blue-500 outline-none"
-                    />
+                      className="flex-1 border border-slate-300 rounded-sm px-2 py-1.5 text-[12px] focus:border-blue-500 outline-none bg-white"
+                    >
+                      <option value="">--Chọn nơi sinh--</option>
+                      <option value="Hà Nội">Hà Nội</option>
+                      <option value="Thành phố Huế">Thành phố Huế</option>
+                      <option value="Lai Châu">Lai Châu</option>
+                      <option value="Điện Biên">Điện Biên</option>
+                      <option value="Sơn La">Sơn La</option>
+                      <option value="Lạng Sơn">Lạng Sơn</option>
+                      <option value="Quảng Ninh">Quảng Ninh</option>
+                      <option value="Thanh Hoá">Thanh Hoá</option>
+                      <option value="Nghệ An">Nghệ An</option>
+                      <option value="Hà Tĩnh">Hà Tĩnh</option>
+                      <option value="Cao Bằng">Cao Bằng</option>
+                      <option value="Tuyên Quang">Tuyên Quang</option>
+                      <option value="Lào Cai">Lào Cai</option>
+                      <option value="Thái Nguyên">Thái Nguyên</option>
+                      <option value="Phú Thọ">Phú Thọ</option>
+                      <option value="Bắc Ninh">Bắc Ninh</option>
+                      <option value="Hưng Yên">Hưng Yên</option>
+                      <option value="Thành phố Hải Phòng">Thành phố Hải Phòng</option>
+                      <option value="Ninh Bình">Ninh Bình</option>
+                      <option value="Quảng Trị">Quảng Trị</option>
+                      <option value="Thành phố Đà Nẵng">Thành phố Đà Nẵng</option>
+                      <option value="Quảng Ngãi">Quảng Ngãi</option>
+                      <option value="Gia Lai">Gia Lai</option>
+                      <option value="Khánh Hòa">Khánh Hòa</option>
+                      <option value="Lâm Đồng">Lâm Đồng</option>
+                      <option value="Đắk Lắk">Đắk Lắk</option>
+                      <option value="Thành phố Hồ Chí Minh">Thành phố Hồ Chí Minh</option>
+                      <option value="Đồng Nai">Đồng Nai</option>
+                      <option value="Tây Ninh">Tây Ninh</option>
+                      <option value="Thành phố Cần Thơ">Thành phố Cần Thơ</option>
+                      <option value="Vĩnh Long">Vĩnh Long</option>
+                      <option value="Đồng Tháp">Đồng Tháp</option>
+                      <option value="Cà Mau">Cà Mau</option>
+                      <option value="An Giang">An Giang</option>
+                    </select>
                   </div>
                   <div className="flex items-center gap-2 col-span-1">
                     <label className="w-24 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Giới tính:</label>
