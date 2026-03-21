@@ -286,7 +286,7 @@ const StudentsView: React.FC = () => {
     setFormData({
       studentCode: student.studentCode || '',
       fullName: student.fullName || '',
-      dob: student.dob || '',
+      dob: student.dob ? (student.dob.includes('-') ? student.dob.split('-').reverse().join(',') : student.dob) : '',
       pob: student.pob || '',
       ethnicity: student.ethnicity || '',
       phone: student.phone || '',
@@ -308,16 +308,19 @@ const StudentsView: React.FC = () => {
     setFormData(prev => ({ ...prev, dob }));
     if (!dob) return;
 
-    const birthDate = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
+    const parts = dob.split(',');
+    if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
+      const birthDate = new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
 
-    if (age < 16) {
-      alert("Bạn chưa đủ 16 tuổi.");
+      if (age < 16) {
+        alert("Bạn chưa đủ 16 tuổi.");
+      }
     }
   };
 
@@ -328,7 +331,12 @@ const StudentsView: React.FC = () => {
     }
 
     // Age validation check on save
-    const birthDate = new Date(formData.dob);
+    const parts = formData.dob.split(',');
+    if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) {
+      alert('Vui lòng chọn đầy đủ ngày tháng năm sinh!');
+      return;
+    }
+    const birthDate = new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
@@ -587,21 +595,111 @@ const StudentsView: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2 col-span-1">
                     <label className="w-36 text-left pl-4 text-[12px] text-slate-600 font-medium whitespace-nowrap">Ngày sinh<span className="text-red-500">*</span>:</label>
-                    <input
-                      type="date"
-                      value={formData.dob}
-                      onChange={e => handleDobChange(e.target.value)}
-                      className="flex-1 border border-slate-300 rounded-sm px-2 py-1.5 text-[12px] focus:border-blue-500 outline-none"
-                    />
+                    <div className="flex-1 grid grid-cols-3 gap-1.5">
+                      <div className="relative">
+                        <select
+                          value={formData.dob.split(',')[0] || ''}
+                          onChange={e => {
+                            const parts = formData.dob.split(',');
+                            handleDobChange(`${e.target.value},${parts[1] || ''},${parts[2] || ''}`);
+                          }}
+                          className="w-full border border-slate-300 rounded-sm pl-2 pr-6 py-1.5 text-[12px] focus:border-blue-500 outline-none bg-white appearance-none hover:border-blue-400 transition-colors text-slate-700 shadow-sm cursor-pointer"
+                        >
+                          <option value="" disabled className="text-slate-400">Ngày</option>
+                          {Array.from({ length: 31 }, (_, i) => {
+                            const day = (i + 1).toString().padStart(2, '0');
+                            return <option key={day} value={day}>{day}</option>
+                          })}
+                        </select>
+                        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                          <ChevronDown size={12} />
+                        </div>
+                      </div>
+                      
+                      <div className="relative">
+                        <select
+                          value={formData.dob.split(',')[1] || ''}
+                          onChange={e => {
+                            const parts = formData.dob.split(',');
+                            handleDobChange(`${parts[0] || ''},${e.target.value},${parts[2] || ''}`);
+                          }}
+                          className="w-full border border-slate-300 rounded-sm pl-2 pr-6 py-1.5 text-[12px] focus:border-blue-500 outline-none bg-white appearance-none hover:border-blue-400 transition-colors text-slate-700 shadow-sm cursor-pointer"
+                        >
+                          <option value="" disabled className="text-slate-400">Tháng</option>
+                          {Array.from({ length: 12 }, (_, i) => {
+                            const month = (i + 1).toString().padStart(2, '0');
+                            return <option key={month} value={month}>{month}</option>
+                          })}
+                        </select>
+                        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                          <ChevronDown size={12} />
+                        </div>
+                      </div>
+
+                      <div className="relative">
+                        <select
+                          value={formData.dob.split(',')[2] || ''}
+                          onChange={e => {
+                            const parts = formData.dob.split(',');
+                            handleDobChange(`${parts[0] || ''},${parts[1] || ''},${e.target.value}`);
+                          }}
+                          className="w-full border border-slate-300 rounded-sm pl-2 pr-6 py-1.5 text-[12px] focus:border-blue-500 outline-none bg-white appearance-none hover:border-blue-400 transition-colors text-slate-700 shadow-sm cursor-pointer"
+                        >
+                          <option value="" disabled className="text-slate-400">Năm</option>
+                          {Array.from({ length: 100 }, (_, i) => {
+                            const year = (new Date().getFullYear() - i).toString();
+                            return <option key={year} value={year}>{year}</option>
+                          })}
+                        </select>
+                        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                          <ChevronDown size={12} />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 col-span-2">
                     <label className="w-20 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Nơi sinh:</label>
-                    <input
-                      type="text"
+                    <select
                       value={formData.pob}
                       onChange={e => setFormData({ ...formData, pob: e.target.value })}
-                      className="flex-1 border border-slate-300 rounded-sm px-2 py-1.5 text-[12px] focus:border-blue-500 outline-none"
-                    />
+                      className="flex-1 border border-slate-300 rounded-sm px-2 py-1.5 text-[12px] focus:border-blue-500 outline-none bg-white"
+                    >
+                      <option value="">--Chọn nơi sinh--</option>
+                      <option value="Hà Nội">Hà Nội</option>
+                      <option value="Thành phố Huế">Thành phố Huế</option>
+                      <option value="Lai Châu">Lai Châu</option>
+                      <option value="Điện Biên">Điện Biên</option>
+                      <option value="Sơn La">Sơn La</option>
+                      <option value="Lạng Sơn">Lạng Sơn</option>
+                      <option value="Quảng Ninh">Quảng Ninh</option>
+                      <option value="Thanh Hoá">Thanh Hoá</option>
+                      <option value="Nghệ An">Nghệ An</option>
+                      <option value="Hà Tĩnh">Hà Tĩnh</option>
+                      <option value="Cao Bằng">Cao Bằng</option>
+                      <option value="Tuyên Quang">Tuyên Quang</option>
+                      <option value="Lào Cai">Lào Cai</option>
+                      <option value="Thái Nguyên">Thái Nguyên</option>
+                      <option value="Phú Thọ">Phú Thọ</option>
+                      <option value="Bắc Ninh">Bắc Ninh</option>
+                      <option value="Hưng Yên">Hưng Yên</option>
+                      <option value="Thành phố Hải Phòng">Thành phố Hải Phòng</option>
+                      <option value="Ninh Bình">Ninh Bình</option>
+                      <option value="Quảng Trị">Quảng Trị</option>
+                      <option value="Thành phố Đà Nẵng">Thành phố Đà Nẵng</option>
+                      <option value="Quảng Ngãi">Quảng Ngãi</option>
+                      <option value="Gia Lai">Gia Lai</option>
+                      <option value="Khánh Hòa">Khánh Hòa</option>
+                      <option value="Lâm Đồng">Lâm Đồng</option>
+                      <option value="Đắk Lắk">Đắk Lắk</option>
+                      <option value="Thành phố Hồ Chí Minh">Thành phố Hồ Chí Minh</option>
+                      <option value="Đồng Nai">Đồng Nai</option>
+                      <option value="Tây Ninh">Tây Ninh</option>
+                      <option value="Thành phố Cần Thơ">Thành phố Cần Thơ</option>
+                      <option value="Vĩnh Long">Vĩnh Long</option>
+                      <option value="Đồng Tháp">Đồng Tháp</option>
+                      <option value="Cà Mau">Cà Mau</option>
+                      <option value="An Giang">An Giang</option>
+                    </select>
                   </div>
                   <div className="flex items-center gap-2 col-span-1">
                     <label className="w-24 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Giới tính:</label>
