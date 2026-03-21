@@ -592,7 +592,7 @@ const StudentsView: React.FC = () => {
                     />
                   </div>
                   <div className="flex items-center gap-2 col-span-2">
-                    <label className="w-24 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Họ và tên HV<span className="text-red-500">*</span>:</label>
+                    <label className="w-32 text-left pl-4 text-[12px] text-slate-600 font-medium whitespace-nowrap">Họ và tên HV<span className="text-red-500">*</span>:</label>
                     <input
                       type="text"
                       value={formData.fullName}
@@ -623,7 +623,7 @@ const StudentsView: React.FC = () => {
                           <ChevronDown size={12} />
                         </div>
                       </div>
-                      
+
                       <div className="relative">
                         <select
                           value={formData.dob.split(',')[1] || ''}
@@ -666,7 +666,7 @@ const StudentsView: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 col-span-1">
-                    <label className="w-24 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Nơi sinh:</label>
+                    <label className="w-32 text-left pl-4 text-[12px] text-slate-600 font-medium whitespace-nowrap">Nơi sinh:</label>
                     <select
                       value={formData.pob}
                       onChange={e => setFormData({ ...formData, pob: e.target.value })}
@@ -690,7 +690,7 @@ const StudentsView: React.FC = () => {
                       <option value="Phú Thọ">Phú Thọ</option>
                       <option value="Bắc Ninh">Bắc Ninh</option>
                       <option value="Hưng Yên">Hưng Yên</option>
-                      <option value="Thành phố Hải Phòng">Hành phố Hải Phòng</option>
+                      <option value="Thành phố Hải Phòng">Thành phố Hải Phòng</option>
                       <option value="Ninh Bình">Ninh Bình</option>
                       <option value="Quảng Trị">Quảng Trị</option>
                       <option value="Thành phố Đà Nẵng">Đà Nẵng</option>
@@ -710,7 +710,7 @@ const StudentsView: React.FC = () => {
                     </select>
                   </div>
                   <div className="flex items-center gap-2 col-span-1">
-                    <label className="w-24 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Giới tính:</label>
+                    <label className="w-32 text-left pl-4 text-[12px] text-slate-600 font-medium whitespace-nowrap">Giới tính:</label>
                     <select
                       value={formData.gender}
                       onChange={e => setFormData({ ...formData, gender: e.target.value })}
@@ -733,7 +733,7 @@ const StudentsView: React.FC = () => {
                     />
                   </div>
                   <div className="flex items-center gap-2 col-span-1">
-                    <label className="w-24 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Dân tộc:</label>
+                    <label className="w-32 text-left pl-4 text-[12px] text-slate-600 font-medium whitespace-nowrap">Dân tộc:</label>
                     <input
                       type="text"
                       value={formData.ethnicity}
@@ -742,7 +742,7 @@ const StudentsView: React.FC = () => {
                     />
                   </div>
                   <div className="flex items-center gap-2 col-span-1">
-                    <label className="w-24 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Quốc tịch:</label>
+                    <label className="w-32 text-left pl-4 text-[12px] text-slate-600 font-medium whitespace-nowrap">Quốc tịch:</label>
                     <select
                       value={formData.nationality}
                       onChange={e => setFormData({ ...formData, nationality: e.target.value })}
