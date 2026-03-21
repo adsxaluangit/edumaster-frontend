@@ -217,11 +217,14 @@ const StudentsView: React.FC = () => {
 
   // Handle ID Number change (syncs with studentCode)
   const handleIdNumberChange = (val: string) => {
-    setFormData({
-      ...formData,
-      idNumber: val,
-      studentCode: val
-    });
+    const cleanedVal = val.replace(/\D/g, '');
+    if (cleanedVal.length <= 12) {
+      setFormData({
+        ...formData,
+        idNumber: cleanedVal,
+        studentCode: cleanedVal
+      });
+    }
   };
 
   const startCamera = async (e?: React.MouseEvent) => {
@@ -327,6 +330,11 @@ const StudentsView: React.FC = () => {
   const handleSave = () => {
     if (!formData.fullName || !formData.group || !formData.idNumber || !formData.dob) {
       alert('Vui lòng nhập đầy đủ: Họ tên, Ngày sinh, Lớp học và Số CMND/CCCD!');
+      return;
+    }
+
+    if (formData.idNumber.length !== 12) {
+      alert('Vui lòng nhập chính xác 12 số CCCD/CMND!');
       return;
     }
 
@@ -593,7 +601,7 @@ const StudentsView: React.FC = () => {
                       placeholder="NHẬP HỌ VÀ TÊN"
                     />
                   </div>
-                  <div className="flex items-center gap-2 col-span-1">
+                  <div className="flex items-center gap-2 col-span-2">
                     <label className="w-36 text-left pl-4 text-[12px] text-slate-600 font-medium whitespace-nowrap">Ngày sinh<span className="text-red-500">*</span>:</label>
                     <div className="flex-1 grid grid-cols-3 gap-1.5">
                       <div className="relative">
@@ -657,8 +665,8 @@ const StudentsView: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 col-span-2">
-                    <label className="w-20 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Nơi sinh:</label>
+                  <div className="flex items-center gap-2 col-span-1">
+                    <label className="w-24 text-right text-[12px] text-slate-600 font-medium whitespace-nowrap">Nơi sinh:</label>
                     <select
                       value={formData.pob}
                       onChange={e => setFormData({ ...formData, pob: e.target.value })}
@@ -682,19 +690,19 @@ const StudentsView: React.FC = () => {
                       <option value="Phú Thọ">Phú Thọ</option>
                       <option value="Bắc Ninh">Bắc Ninh</option>
                       <option value="Hưng Yên">Hưng Yên</option>
-                      <option value="Thành phố Hải Phòng">Thành phố Hải Phòng</option>
+                      <option value="Thành phố Hải Phòng">Hành phố Hải Phòng</option>
                       <option value="Ninh Bình">Ninh Bình</option>
                       <option value="Quảng Trị">Quảng Trị</option>
-                      <option value="Thành phố Đà Nẵng">Thành phố Đà Nẵng</option>
+                      <option value="Thành phố Đà Nẵng">Đà Nẵng</option>
                       <option value="Quảng Ngãi">Quảng Ngãi</option>
                       <option value="Gia Lai">Gia Lai</option>
                       <option value="Khánh Hòa">Khánh Hòa</option>
                       <option value="Lâm Đồng">Lâm Đồng</option>
                       <option value="Đắk Lắk">Đắk Lắk</option>
-                      <option value="Thành phố Hồ Chí Minh">Thành phố Hồ Chí Minh</option>
+                      <option value="Thành phố Hồ Chí Minh">TP Hồ Chí Minh</option>
                       <option value="Đồng Nai">Đồng Nai</option>
                       <option value="Tây Ninh">Tây Ninh</option>
-                      <option value="Thành phố Cần Thơ">Thành phố Cần Thơ</option>
+                      <option value="Thành phố Cần Thơ">Cần Thơ</option>
                       <option value="Vĩnh Long">Vĩnh Long</option>
                       <option value="Đồng Tháp">Đồng Tháp</option>
                       <option value="Cà Mau">Cà Mau</option>

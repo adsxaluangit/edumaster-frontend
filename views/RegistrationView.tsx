@@ -154,6 +154,11 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onLoginSuccess, ini
             alert('Vui lòng điền đầy đủ các trường bắt buộc (Họ tên, SĐT, CCCD, Nơi sinh)!');
             return;
         }
+        
+        if (formData.idNumber.length !== 12) {
+            alert('Vui lòng nhập chính xác 12 số CCCD/CMND!');
+            return;
+        }
 
         const nameParts = formData.fullName.trim().split(' ');
         const firstName = nameParts.length > 1 ? nameParts.pop() || '' : formData.fullName;
@@ -313,83 +318,82 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onLoginSuccess, ini
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-bold text-slate-700 mb-1">Ngày sinh</label>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            <div className="relative">
-                                                <select
-                                                    value={formData.dob.split(',')[0] || ''}
-                                                    onChange={e => {
-                                                        const parts = formData.dob.split(',');
-                                                        setFormData({ ...formData, dob: `${e.target.value},${parts[1] || ''},${parts[2] || ''}` });
-                                                    }}
-                                                    className="w-full pl-3 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white font-medium text-slate-700 appearance-none transition-all shadow-sm hover:border-blue-400 cursor-pointer"
-                                                >
-                                                    <option value="" disabled className="text-slate-400">Ngày</option>
-                                                    {Array.from({ length: 31 }, (_, i) => {
-                                                        const day = (i + 1).toString().padStart(2, '0');
-                                                        return <option key={day} value={day}>{day}</option>
-                                                    })}
-                                                </select>
-                                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                                    <ChevronDown size={16} />
-                                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-1">Ngày sinh</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <div className="relative">
+                                            <select
+                                                value={formData.dob.split(',')[0] || ''}
+                                                onChange={e => {
+                                                    const parts = formData.dob.split(',');
+                                                    setFormData({ ...formData, dob: `${e.target.value},${parts[1] || ''},${parts[2] || ''}` });
+                                                }}
+                                                className="w-full pl-3 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white font-medium text-slate-700 appearance-none transition-all shadow-sm hover:border-blue-400 cursor-pointer"
+                                            >
+                                                <option value="" disabled className="text-slate-400">Ngày</option>
+                                                {Array.from({ length: 31 }, (_, i) => {
+                                                    const day = (i + 1).toString().padStart(2, '0');
+                                                    return <option key={day} value={day}>{day}</option>
+                                                })}
+                                            </select>
+                                            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                <ChevronDown size={16} />
                                             </div>
-                                            
-                                            <div className="relative">
-                                                <select
-                                                    value={formData.dob.split(',')[1] || ''}
-                                                    onChange={e => {
-                                                        const parts = formData.dob.split(',');
-                                                        setFormData({ ...formData, dob: `${parts[0] || ''},${e.target.value},${parts[2] || ''}` });
-                                                    }}
-                                                    className="w-full pl-3 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white font-medium text-slate-700 appearance-none transition-all shadow-sm hover:border-blue-400 cursor-pointer"
-                                                >
-                                                    <option value="" disabled className="text-slate-400">Tháng</option>
-                                                    {Array.from({ length: 12 }, (_, i) => {
-                                                        const month = (i + 1).toString().padStart(2, '0');
-                                                        return <option key={month} value={month}>Tháng {month}</option>
-                                                    })}
-                                                </select>
-                                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                                    <ChevronDown size={16} />
-                                                </div>
+                                        </div>
+                                        
+                                        <div className="relative">
+                                            <select
+                                                value={formData.dob.split(',')[1] || ''}
+                                                onChange={e => {
+                                                    const parts = formData.dob.split(',');
+                                                    setFormData({ ...formData, dob: `${parts[0] || ''},${e.target.value},${parts[2] || ''}` });
+                                                }}
+                                                className="w-full pl-3 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white font-medium text-slate-700 appearance-none transition-all shadow-sm hover:border-blue-400 cursor-pointer"
+                                            >
+                                                <option value="" disabled className="text-slate-400">Tháng</option>
+                                                {Array.from({ length: 12 }, (_, i) => {
+                                                    const month = (i + 1).toString().padStart(2, '0');
+                                                    return <option key={month} value={month}>Tháng {month}</option>
+                                                })}
+                                            </select>
+                                            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                <ChevronDown size={16} />
                                             </div>
+                                        </div>
 
-                                            <div className="relative">
-                                                <select
-                                                    value={formData.dob.split(',')[2] || ''}
-                                                    onChange={e => {
-                                                        const parts = formData.dob.split(',');
-                                                        setFormData({ ...formData, dob: `${parts[0] || ''},${parts[1] || ''},${e.target.value}` });
-                                                    }}
-                                                    className="w-full pl-3 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white font-medium text-slate-700 appearance-none transition-all shadow-sm hover:border-blue-400 cursor-pointer"
-                                                >
-                                                    <option value="" disabled className="text-slate-400">Năm</option>
-                                                    {Array.from({ length: 100 }, (_, i) => {
-                                                        const year = (new Date().getFullYear() - i).toString();
-                                                        return <option key={year} value={year}>{year}</option>
-                                                    })}
-                                                </select>
-                                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                                    <ChevronDown size={16} />
-                                                </div>
+                                        <div className="relative">
+                                            <select
+                                                value={formData.dob.split(',')[2] || ''}
+                                                onChange={e => {
+                                                    const parts = formData.dob.split(',');
+                                                    setFormData({ ...formData, dob: `${parts[0] || ''},${parts[1] || ''},${e.target.value}` });
+                                                }}
+                                                className="w-full pl-3 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white font-medium text-slate-700 appearance-none transition-all shadow-sm hover:border-blue-400 cursor-pointer"
+                                            >
+                                                <option value="" disabled className="text-slate-400">Năm</option>
+                                                {Array.from({ length: 100 }, (_, i) => {
+                                                    const year = (new Date().getFullYear() - i).toString();
+                                                    return <option key={year} value={year}>{year}</option>
+                                                })}
+                                            </select>
+                                            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                <ChevronDown size={16} />
                                             </div>
                                         </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-slate-700 mb-1">Giới tính</label>
-                                        <div className="flex gap-4 pt-2">
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" name="gender" value="Nam" checked={formData.gender === 'Nam'} onChange={e => setFormData({ ...formData, gender: e.target.value })} className="text-blue-600 focus:ring-blue-500" />
-                                                <span>Nam</span>
-                                            </label>
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" name="gender" value="Nữ" checked={formData.gender === 'Nữ'} onChange={e => setFormData({ ...formData, gender: e.target.value })} className="text-blue-600 focus:ring-blue-500" />
-                                                <span>Nữ</span>
-                                            </label>
-                                        </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-1">Giới tính</label>
+                                    <div className="flex gap-6 pt-2">
+                                        <label className="flex items-center gap-2 cursor-pointer group">
+                                            <input type="radio" name="gender" value="Nam" checked={formData.gender === 'Nam'} onChange={e => setFormData({ ...formData, gender: e.target.value })} className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300" />
+                                            <span className="group-hover:text-blue-600 transition-colors">Nam</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer group">
+                                            <input type="radio" name="gender" value="Nữ" checked={formData.gender === 'Nữ'} onChange={e => setFormData({ ...formData, gender: e.target.value })} className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300" />
+                                            <span className="group-hover:text-blue-600 transition-colors">Nữ</span>
+                                        </label>
                                     </div>
                                 </div>
 
@@ -409,9 +413,14 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onLoginSuccess, ini
                                         <input
                                             type="text"
                                             required
+                                            maxLength={12}
                                             value={formData.idNumber}
-                                            onChange={e => setFormData({ ...formData, idNumber: e.target.value })}
-                                            className="w-full px-4 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                                            onChange={e => {
+                                                const val = e.target.value.replace(/\D/g, '');
+                                                if (val.length <= 12) setFormData({ ...formData, idNumber: val });
+                                            }}
+                                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
+                                            placeholder="Nhập 12 số CCCD"
                                         />
                                     </div>
                                 </div>
