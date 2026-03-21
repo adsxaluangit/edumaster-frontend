@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, X, Upload, Save, CheckCircle, LogIn, Lock, User } from 'lucide-react';
+import { Camera, X, Upload, Save, CheckCircle, LogIn, Lock, User, ChevronDown } from 'lucide-react';
 import { Student } from '../types';
 import { MOCK_STUDENTS, MOCK_NATIONS, MOCK_CLASSES } from '../mockData';
 import { fetchCategory, createCategory, COLLECTIONS } from '../services/api';
@@ -316,12 +316,67 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onLoginSuccess, ini
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-bold text-slate-700 mb-1">Ngày sinh</label>
-                                        <input
-                                            type="date"
-                                            value={formData.dob}
-                                            onChange={e => setFormData({ ...formData, dob: e.target.value })}
-                                            className="w-full px-4 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-                                        />
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <div className="relative">
+                                                <select
+                                                    value={formData.dob.split(',')[0] || ''}
+                                                    onChange={e => {
+                                                        const parts = formData.dob.split(',');
+                                                        setFormData({ ...formData, dob: `${e.target.value},${parts[1] || ''},${parts[2] || ''}` });
+                                                    }}
+                                                    className="w-full pl-3 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white font-medium text-slate-700 appearance-none transition-all shadow-sm hover:border-blue-400 cursor-pointer"
+                                                >
+                                                    <option value="" disabled className="text-slate-400">Ngày</option>
+                                                    {Array.from({ length: 31 }, (_, i) => {
+                                                        const day = (i + 1).toString().padStart(2, '0');
+                                                        return <option key={day} value={day}>{day}</option>
+                                                    })}
+                                                </select>
+                                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                    <ChevronDown size={16} />
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="relative">
+                                                <select
+                                                    value={formData.dob.split(',')[1] || ''}
+                                                    onChange={e => {
+                                                        const parts = formData.dob.split(',');
+                                                        setFormData({ ...formData, dob: `${parts[0] || ''},${e.target.value},${parts[2] || ''}` });
+                                                    }}
+                                                    className="w-full pl-3 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white font-medium text-slate-700 appearance-none transition-all shadow-sm hover:border-blue-400 cursor-pointer"
+                                                >
+                                                    <option value="" disabled className="text-slate-400">Tháng</option>
+                                                    {Array.from({ length: 12 }, (_, i) => {
+                                                        const month = (i + 1).toString().padStart(2, '0');
+                                                        return <option key={month} value={month}>Tháng {month}</option>
+                                                    })}
+                                                </select>
+                                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                    <ChevronDown size={16} />
+                                                </div>
+                                            </div>
+
+                                            <div className="relative">
+                                                <select
+                                                    value={formData.dob.split(',')[2] || ''}
+                                                    onChange={e => {
+                                                        const parts = formData.dob.split(',');
+                                                        setFormData({ ...formData, dob: `${parts[0] || ''},${parts[1] || ''},${e.target.value}` });
+                                                    }}
+                                                    className="w-full pl-3 pr-8 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white font-medium text-slate-700 appearance-none transition-all shadow-sm hover:border-blue-400 cursor-pointer"
+                                                >
+                                                    <option value="" disabled className="text-slate-400">Năm</option>
+                                                    {Array.from({ length: 100 }, (_, i) => {
+                                                        const year = (new Date().getFullYear() - i).toString();
+                                                        return <option key={year} value={year}>{year}</option>
+                                                    })}
+                                                </select>
+                                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                    <ChevronDown size={16} />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-bold text-slate-700 mb-1">Giới tính</label>
